@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>parts filter</title>
+<style>
+  /* ── BASE & RESET (Liquid Metal Theme) ── */
+  :root {
+    --text-bright: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.6);
+    --text-faint: rgba(255, 255, 255, 0.4);
+    --accent-edge: rgba(255, 255, 255, 0.15);
+    --bg-black-glass: rgba(0, 0, 0, 0.75);
+    --ease-smooth: cubic-bezier(0.33, 1, 0.68, 1);
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+
+    /* Badge Colors (Refractive) */
+    --b-blue: 91, 157, 255;
+    --b-green: 74, 222, 128;
+    --b-yellow: 251, 191, 36;
+    --b-pink: 244, 114, 182;
+    --b-purple: 167, 139, 250;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    min-height: 100vh;
+    background-color: #000000;
+    color: var(--text-bright);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Inter, sans-serif;
+    font-size: 14px;
+    padding: 48px 24px 80px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── ULTRA-DARK LIQUID BACKGROUND ── */
+  .liquid-background {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; overflow: hidden; background: #000000; pointer-events: none;
+  }
+
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(100px); opacity: 0.5;
+    animation: moveLiquid 30s infinite alternate ease-in-out;
+  }
+
+  .blob-1 {
+    background: linear-gradient(45deg, #000000, #222222);
+    width: 80vmax; height: 80vmax; top: -30%; left: -20%;
+  }
+
+  .blob-2 {
+    background: linear-gradient(45deg, #0a0a0a, #333333);
+    width: 70vmax; height: 70vmax; bottom: -20%; right: -20%;
+    animation-delay: -15s; opacity: 0.4;
+  }
+
+  @keyframes moveLiquid {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    100% { transform: translate(-50px, 50px) scale(1.05) rotate(5deg); }
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; z-index: 2; position: relative; }
+
+  /* ── Header ── */
+  header { margin-bottom: 36px; }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  h1 {
+    font-family: "SF Pro Display", sans-serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 250;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  h1 b { font-weight: 700; }
+  .sub { color: var(--text-dim); margin-top: 8px; max-width: 56ch; line-height: 1.55; }
+
+  /* ── Sleek Black Glass Card ── */
+  .card {
+    position: relative; overflow: hidden;
+    background: var(--bg-black-glass);
+    backdrop-filter: blur(50px) saturate(110%);
+    -webkit-backdrop-filter: blur(50px) saturate(110%);
+    border: 1px solid var(--accent-edge);
+    border-radius: 28px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 28px;
+    margin-bottom: 30px;
+  }
+
+  .card-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.8;
+  }
+  .card-label::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+
+  /* ── Paste zone (Sleek Input) ── */
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    /* Sleek Input Style */
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    color: var(--text-bright);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 16px 18px;
+    resize: vertical;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+  }
+  textarea:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1), inset 0 2px 5px rgba(0,0,0,0.3);
+  }
+  textarea::placeholder { color: var(--text-faint); }
+
+  .toolbar { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
+
+  /* ── Liquid Glass Buttons ── */
+  button {
+    appearance: none; cursor: pointer; font: inherit;
+    font-size: 13px; font-weight: 600; padding: 11px 20px; border-radius: 999px;
+    color: white;
+
+    /* Liquid Glass Style */
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(15px) saturate(120%);
+    -webkit-backdrop-filter: blur(15px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    /* Refractive Lighting */
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.25),
+        inset 0 -1px 1px rgba(0,0,0,0.2),
+        0 4px 15px rgba(0,0,0,0.3);
+
+    transition: all 0.3s var(--ease-smooth);
+    position: relative; z-index: 1;
+  }
+  button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow:
+        inset 0 1px 2px rgba(255,255,255,0.4),
+        inset 0 -1px 1px rgba(0,0,0,0.2),
+        0 8px 20px rgba(0,0,0,0.4);
+    transform: translateY(-2px);
+  }
+  button:active { transform: scale(0.97) translateY(0); }
+
+  /* Primary action is slightly brighter glass */
+  button.primary {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; filter: grayscale(1); }
+
+  .count-pill {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 99px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .count-pill b { color: #fff; font-variant-numeric: tabular-nums; }
+
+  /* ── Table (Glass Style) ── */
+  .table-scroll {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--accent-edge);
+    background: rgba(0,0,0,0.2);
+  }
+  table { border-collapse: collapse; width: 100%; min-width: 1600px; font-size: 12px; }
+
+  thead th {
+    position: sticky; top: 0;
+    /* Dark Frosted Header */
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--text-dim);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 14px 12px;
+    /* Sharp bright separator */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  tbody td {
+    text-align: center;
+    padding: 12px 12px;
+    /* Subtle row separators */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: top;
+    white-space: nowrap;
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-bright);
+  }
+  tbody tr:hover td { background: rgba(255,255,255,0.04); }
+  td.mono { font-family: var(--mono); font-size: 11.5px; color: rgba(255, 255, 255, 0.85); }
+  td.desc { white-space: normal; min-width: 260px; line-height: 1.5; color: var(--text-dim); text-align: center; }
+  td.na { color: var(--text-faint); }
+
+  /* Glass Badges */
+  .badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 99px;
+    backdrop-filter: blur(5px);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  }
+  /* Using RGB vars for translucent glass effect */
+  .b-phone  { color: rgb(var(--b-blue)); border: 1px solid rgba(var(--b-blue), 0.5); background: rgba(var(--b-blue), 0.1); }
+  .b-tablet { color: rgb(var(--b-green)); border: 1px solid rgba(var(--b-green), 0.5); background: rgba(var(--b-green), 0.1); }
+  .b-watch  { color: rgb(var(--b-yellow)); border: 1px solid rgba(var(--b-yellow), 0.5); background: rgba(var(--b-yellow), 0.1); }
+  .b-ring   { color: rgb(var(--b-pink)); border: 1px solid rgba(var(--b-pink), 0.5); background: rgba(var(--b-pink), 0.1); }
+  .b-buds   { color: rgb(var(--b-purple)); border: 1px solid rgba(var(--b-purple), 0.5); background: rgba(var(--b-purple), 0.1); }
+
+  .flag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #ff9c9c;
+    border: 1px solid rgba(255, 120, 120, 0.45);
+    background: rgba(255, 90, 90, 0.12);
+    vertical-align: middle;
+  }
+  .flag.warn {
+    color: #ffd37a;
+    border-color: rgba(255, 200, 90, 0.4);
+    background: rgba(255, 190, 60, 0.1);
+  }
+
+  /* ── View tabs ── */
+  .views {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .view-tab {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .view-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+  .view-tab.active {
+    color: #06080f;
+    background: var(--accent);
+    border-color: transparent;
+  }
+  .view-tab .n {
+    opacity: 0.75;
+    font-weight: 700;
+    margin-left: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* green completed pill */
+  .done-pill {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.45);
+    background: rgba(74, 222, 128, 0.12);
+  }
+
+  .empty {
+    text-align: center;
+    color: var(--text-faint);
+    padding: 60px 20px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .empty .glyph { font-size: 32px; opacity: 0.5; display: block; margin-bottom: 16px; filter: grayscale(1); }
+  .empty b { color: var(--text-bright); }
+
+  /* Sleek Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translate(-50%, 20px);
+    /* Dark glass toast */
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--text-bright);
+    padding: 12px 24px;
+    border-radius: 99px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s var(--ease-smooth);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  footer { color: var(--text-faint); font-size: 11.5px; margin-top: 12px; line-height: 1.7; text-align: right; padding-right: 4px;}
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<!-- The Dark Liquid Background -->
+<div class="liquid-background">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"></div>
+    <h1><b></b></h1>
+    <p class="sub"></p>
+  </header>
+
+  <section class="card">
+    <div class="card-label">Paste raw data</div>
+    <textarea id="rawInput" placeholder="Paste any amount of rows here" spellcheck="false"></textarea>
+    <div class="toolbar">
+      <button class="primary" id="btnFilter">Filter data</button>
+      <button id="btnCopy" disabled>Copy for Excel</button>
+      <button id="btnCsv" disabled>Download CSV</button>
+      <button id="btnClear">Clear</button>
+      <span class="count-pill" id="countPill" hidden><b id="countNum">0</b>&nbsp;rows filtered</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-label">Filtered output</div>
+    <div class="views" id="views" hidden>
+      <button class="view-tab active" data-view="all">All<span class="n" id="nAll"></span></button>
+      <button class="view-tab" data-view="completed">Completed<span class="n" id="nCompleted"></span></button>
+      <button class="view-tab" data-view="requested">Parts Requested<span class="n" id="nRequested"></span></button>
+    </div>
+    <div class="table-scroll" id="tableWrap">
+      <div class="empty" id="emptyState">
+        <span class="glyph">⌁</span>
+        Nothing filtered yet.<br>Paste raw rows above and press <b>Filter data</b>.
+      </div>
+    </div>
+    <footer>built by minh - work-in-progress</footer>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Kept original JS logic intact
+"use strict";
+
+const HEADERS = [
+  "Created","SERVICE REQUEST","GC SR STATUS","Customer","Call Back Phone",
+  "MODEL","SERIAL","IMEI","Device Storage","COLOR","Device in Store",
+  "Warranty Provider","Description of Issue","Do you need to order  parts?","Parts Required"
+];
+
+/* ── Robust TSV parser ─────────────────────────────────
+   Splits pasted text into rows of cells, correctly handling
+   Excel/Sheets quoting: a field wrapped in double-quotes may
+   contain tabs and newlines, and "" is an escaped quote. */
+function parseTSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += ch;
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === "\t") {
+      row.push(field); field = "";
+    } else if (ch === "\n") {
+      row.push(field); field = "";
+      rows.push(row); row = [];
+    } else {
+      field += ch;
+    }
+  }
+  // flush last field/row
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  // drop fully-empty rows
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+
+/* ── helpers ─────────────────────────────────────────── */
+const isStorage = s => /\d\s*(GB|TB)/i.test(s || "");
+const isNumeric = s => s !== "" && s != null && /^\d+$/.test(String(s).trim());
+const hasDash   = s => (s || "").includes("-");
+
+/* col(): 1-based access into a raw row, trimmed */
+const makeCol = cells => i => (cells[i - 1] || "").trim();
+
+/* ── device detection (same cascade as the Excel tool) ── */
+function detectType(c) {
+  if (hasDash(c(10))) return "ring";                       // model directly in col 10
+  if (hasDash(c(11))) {
+    if (isStorage(c(14))) return "tablet";                 // tablet with IMEI
+    if (isStorage(c(13))) return "tablet_noimei";          // tablet, IMEI absent
+    if ((isNumeric(c(13)) || c(13) === c(12)) && c(13) !== "" && c(14) !== "" && c(15) === "") return "watch";  // numeric IMEI, color in 14, nothing in 15
+    if (c(15) !== "" && c(16) !== "") return "buds";       // buds repeat serial across cols 14-16
+    return "acc_noimei";                                   // ring / accessory without IMEI
+  }
+  return "phone";
+}
+
+/* ── per-type column maps ────────────────────────────────
+   [model, serial, imei, storage, color, store, warranty, desc1, desc2]
+   null = N/A · desc2 null = single description column      */
+/* Field order in every export: … , Device in Store, Warranty Provider, …
+   so the in-store column is ALWAYS warranty − 1 (verified against the
+   MKM master list across phones, tablets, and rings). */
+const MAP = {
+  phone:         [12, 13, 14, 15,  16, 25, 26, 35, null],
+  tablet:        [11, 12, 13, 14,  15, 23, 24, 33, null],
+  tablet_noimei: [11, 12, null,13, 14, 22, 23, 32, null],
+  watch:         [11, 12, 13, null,14, 19, 20, 28, 29],
+  buds:          [11, 12, 14, null,13, 21, 22, 30, 31],
+  acc_noimei:    [11, 12, null,null,13, 18, 19, 27, 28],
+  ring:          [10, 11, 12, null,13, 16, 17, 27, 28],
+};
+
+const BADGE = {
+  phone:         ["Phone",  "b-phone"],
+  tablet:        ["Tablet", "b-tablet"],
+  tablet_noimei: ["Tablet", "b-tablet"],
+  watch:         ["Watch",  "b-watch"],
+  buds:          ["Buds",   "b-buds"],
+  acc_noimei:    ["Ring",   "b-ring"],
+  ring:          ["Ring",   "b-ring"],
+};
+
+/* ── date: "May 21, 2026 5:27 PM" or Excel serial → M/D/YYYY  H:MM:SS AM/PM ── */
+function formatDate(raw) {
+  raw = (raw || "").trim();
+  if (!raw) return "";
+  const MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+
+  function fmt(mo, d, y, H, M, S) {
+    const ap = H >= 12 ? "PM" : "AM";
+    const h12 = H % 12 || 12;
+    return `${mo}/${d}/${y}  ${h12}:${String(M).padStart(2, "0")}:${String(S).padStart(2, "0")} ${ap}`;
+  }
+
+  if (/^\d+(\.\d+)?$/.test(raw)) {
+    const d = new Date(Math.round((parseFloat(raw) - 25569) * 86400 * 1000));
+    const u = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+    return fmt(u.getMonth() + 1, u.getDate(), u.getFullYear(), u.getHours(), u.getMinutes(), u.getSeconds());
+  }
+
+  let m = raw.match(/^([A-Za-z]{3,9})\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?$/i);
+  if (m) {
+    const mo = MONTHS[m[1].slice(0, 3).toLowerCase()];
+    if (mo) {
+      let h = parseInt(m[4], 10);
+      const ap = (m[7] || "").toUpperCase();
+      if (ap === "PM" && h < 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return fmt(mo, parseInt(m[2], 10), parseInt(m[3], 10), h, parseInt(m[5], 10), parseInt(m[6] || "0", 10));
+    }
+  }
+
+  m = raw.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?$/i);
+  if (m) {
+    let h = parseInt(m[4], 10);
+    const ap = (m[7] || "").toUpperCase();
+    if (ap === "PM" && h < 12) h += 12;
+    if (ap === "AM" && h === 12) h = 0;
+    return fmt(parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10), h, parseInt(m[5], 10), parseInt(m[6] || "0", 10));
+  }
+
+  return raw;
+}
+
+/* ── parts: search for marker anywhere in the row ─────── */
+function extractParts(cells) {
+  const trimmed = cells.map(v => (v || "").trim());
+  // IMPORTANT: column 5 (index 4) is the "GC SR STATUS" field, whose value is
+  // often "Parts Requested" / "Parts Received" / "Parts Ordered". That is the
+  // request status, NOT the parts-needed marker — the real marker sits deep in
+  // the row (≈ col 44-65). So we only search from column 10 (index 9) onward.
+  const SEARCH_FROM = 9;
+  const POS_MARKERS = ["Parts Needed", "Parts Received", "Parts Requested", "Parts Ordered"];
+  function findFrom(label) {
+    for (let i = SEARCH_FROM; i < trimmed.length; i++) {
+      if (trimmed[i] === label) return i;
+    }
+    return -1;
+  }
+  for (const marker of POS_MARKERS) {
+    const i = findFrom(marker);
+    if (i !== -1) {
+      const val = (trimmed[i + 1] || "").trim();
+      return [marker, val];
+    }
+  }
+  if (findFrom("No Part Order Needed") !== -1) return ["No Part Order Needed", ""];
+  // legacy buds rows: parts string sits in col 32 with no marker at all
+  const legacy = trimmed[31] || "";
+  const lc = legacy.toLowerCase();
+  if (legacy && lc !== "n/a" && lc !== "no" && lc !== "yes") {
+    return ["Parts Needed", legacy];
+  }
+  return ["", ""];
+}
+
+/* ── one raw row → one output record ─────────────────── */
+function filterRow(cells) {
+  if (cells.length < 12) return null;                  // not a data row
+  const c = makeCol(cells);
+  if (!c(1) || !c(2)) return null;
+
+  const type = detectType(c);
+  const [mModel, mSerial, mImei, mStor, mColor, mStore, mWarr, mD1, mD2] = MAP[type];
+
+  let model = c(mModel);
+  if (!/^SM-/i.test(model)) {
+    const smCell = cells.map(v => (v || "").trim()).find(v => /^SM-[A-Z0-9]/i.test(v));
+    if (smCell) model = smCell;
+  }
+
+  const serial = c(mSerial);
+  let imei = mImei ? c(mImei) : "";
+  if (!imei) imei = serial;                            // fallback rule
+
+  let storage = mStor ? c(mStor) : "";
+  if (!storage) storage = "N/A";
+
+  let desc = c(mD1);
+  if (mD2 && c(mD2)) desc = desc ? `${desc} / ${c(mD2)}` : c(mD2);
+
+  const [partsYN, partsReq] = extractParts(cells);
+
+  return {
+    type,
+    row: [
+      formatDate(c(1)), c(2), c(5), c(6), c(9),
+      model, serial, imei, storage, c(mColor),
+      c(mStore), c(mWarr), desc, partsYN, partsReq
+    ]
+  };
+}
+
+/* ── UI wiring ───────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+let results = [];
+let view = "all";
+
+/* Status lives in output column 3 (r.row[2]). */
+const isCompleted = r => (r.row[2] || "").trim().toLowerCase() === "completed";
+const isRequested = r => (r.row[2] || "").trim().toLowerCase() === "parts requested";
+function viewRows() {
+  if (view === "completed") return results.filter(isCompleted);
+  if (view === "requested") return results.filter(isRequested);
+  return results;
+}
+/* Column sets for the compact views (indices into r.row). */
+const VIEW_DEFS = {
+  completed: { headers: ["SERVICE REQUEST", "Customer", "Call Back Phone", "Status"], cols: [1, 3, 4] },
+  requested: { headers: ["SERVICE REQUEST", "Customer", "Call Back Phone", "Parts Required / Needed", "Description of Issue"], cols: [1, 3, 4, 14, 12] },
+};
+
+function render() {
+  const wrap = $("tableWrap");
+  if (!results.length) {
+    wrap.innerHTML = `<div class="empty"><span class="glyph">⌁</span>Nothing filtered yet.<br>Paste raw rows above and press <b>Filter data</b>.</div>`;
+    $("countPill").hidden = true;
+    $("views").hidden = true;
+    $("btnCopy").disabled = $("btnCsv").disabled = true;
+    return;
+  }
+
+  // tab counts
+  $("nAll").textContent = results.length;
+  $("nCompleted").textContent = results.filter(isCompleted).length;
+  $("nRequested").textContent = results.filter(isRequested).length;
+  $("views").hidden = false;
+  document.querySelectorAll(".view-tab").forEach(b =>
+    b.classList.toggle("active", b.dataset.view === view));
+
+  const rows = viewRows();
+  if (!rows.length) {
+    const label = view === "completed" ? "Completed" : "Parts Requested";
+    wrap.innerHTML = `<div class="empty"><span class="glyph">⌁</span>No rows with status “${label}” in this paste.</div>`;
+    $("countPill").hidden = true;
+    $("btnCopy").disabled = $("btnCsv").disabled = true;
+    return;
+  }
+
+  const srCounts = {};
+  for (const r of rows) srCounts[r.row[1]] = (srCounts[r.row[1]] || 0) + 1;
+
+  let head, body;
+  if (view === "all") {
+    head = `<tr><th>Type</th>${HEADERS.map(h => `<th>${h}</th>`).join("")}</tr>`;
+    body = rows.map(r => {
+      const [label, cls] = BADGE[r.type] || ["?", "b-phone"];
+      const isDup = srCounts[r.row[1]] > 1;
+      const missing = !r.row[5] || (r.row[13] === "Parts Needed" && !r.row[14]);
+      const flags = (isDup ? `<span class="flag" title="Duplicate service request in this paste">DUP</span>` : "")
+                  + (missing ? `<span class="flag warn" title="Missing model or parts — check the source record">!</span>` : "");
+      const tds = r.row.map((v, i) => {
+        const monoCols = [1, 4, 5, 6, 7];
+        const klass = i === 12 ? "desc" : monoCols.includes(i) ? "mono" : v === "N/A" ? "na" : "";
+        return `<td class="${klass}">${escapeHtml(v)}</td>`;
+      }).join("");
+      return `<tr><td><span class="badge ${cls}">${label}</span>${flags}</td>${tds}</tr>`;
+    }).join("");
+  } else {
+    const def = VIEW_DEFS[view];
+    head = `<tr>${def.headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+    body = rows.map(r => {
+      const tds = def.cols.map(ci => {
+        const klass = ci === 12 ? "desc" : (ci === 1 || ci === 4) ? "mono" : "";
+        // Parts column: fall back to the parts-status text when the part name is blank
+        const v = (ci === 14 && !r.row[14]) ? r.row[13] : r.row[ci];
+        return `<td class="${klass}">${escapeHtml(v)}</td>`;
+      }).join("");
+      const statusCell = view === "completed" ? `<td><span class="done-pill">Completed</span></td>` : "";
+      return `<tr>${tds}${statusCell}</tr>`;
+    }).join("");
+  }
+  wrap.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+
+  const tally = {};
+  for (const r of rows) { const lbl = (BADGE[r.type] || ["?"])[0]; tally[lbl] = (tally[lbl] || 0) + 1; }
+  const breakdown = Object.entries(tally).map(([k, n]) => `${n} ${k}`).join(" · ");
+  $("countPill").innerHTML = `<b>${rows.length}</b>&nbsp;row${rows.length > 1 ? "s" : ""} · ${breakdown}`;
+  $("countPill").hidden = false;
+  $("btnCopy").disabled = $("btnCsv").disabled = false;
+}
+
+/* view tab clicks */
+document.querySelectorAll(".view-tab").forEach(b =>
+  b.addEventListener("click", () => { view = b.dataset.view; render(); }));
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+}
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove("show"), 2250);
+}
+
+$("btnFilter").addEventListener("click", () => {
+  const rawRows = parseTSV($("rawInput").value);
+  results = rawRows.map(filterRow).filter(Boolean);
+  render();
+  toast(results.length
+    ? `Filtered ${results.length} row${results.length > 1 ? "s" : ""}`
+    : "No valid rows found — check the paste");
+});
+
+$("btnCopy").addEventListener("click", async () => {
+  const rows = viewRows();
+  let tsv;
+  if (view === "all") {
+    tsv = rows.map(r => r.row.join("\t")).join("\n");
+  } else {
+    const def = VIEW_DEFS[view];
+    tsv = rows.map(r => def.cols.map(ci =>
+      (ci === 14 && !r.row[14]) ? r.row[13] : r.row[ci]
+    ).concat(view === "completed" ? ["Completed"] : []).join("\t")).join("\n");
+  }
+  try {
+    await navigator.clipboard.writeText(tsv);
+    toast("Copied — paste straight into Excel");
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = tsv; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); ta.remove();
+    toast("Copied — paste straight into Excel");
+  }
+});
+
+$("btnCsv").addEventListener("click", () => {
+  const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = viewRows();
+  let csv;
+  if (view === "all") {
+    csv = [HEADERS.map(esc).join(","), ...rows.map(r => r.row.map(esc).join(","))].join("\r\n");
+  } else {
+    const def = VIEW_DEFS[view];
+    csv = [def.headers.map(esc).join(","), ...rows.map(r =>
+      def.cols.map(ci => esc((ci === 14 && !r.row[14]) ? r.row[13] : r.row[ci]))
+        .concat(view === "completed" ? [esc("Completed")] : []).join(","))].join("\r\n");
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" }));
+  a.download = view === "all" ? "GC_Parts_Filtered.csv" : `GC_Parts_${view}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("CSV downloaded");
+});
+
+// Auto-filter the moment data is pasted — no button press needed
+$("rawInput").addEventListener("paste", () => {
+  setTimeout(() => $("btnFilter").click(), 50);
+});
+
+$("btnClear").addEventListener("click", () => {
+  $("rawInput").value = "";
+  results = [];
+  render();
+});
+</script>
+</body>
+</html>
