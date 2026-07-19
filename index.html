@@ -569,6 +569,12 @@ function extractParts(cells) {
 
 /* ── one raw row → one output record ─────────────────── */
 function filterRow(cells) {
+  // Strip a category label pasted at the start of a row, e.g.
+  // "Z-Series Phone Data: May 10, 2026 …" or "Tablet Data: May 9 …"
+  if (cells.length && /Data:\s*/i.test(cells[0])) {
+    cells = cells.slice();
+    cells[0] = cells[0].replace(/^.*?Data:\s*/i, "");
+  }
   if (cells.length < 12) return null;                  // not a data row
   const c = makeCol(cells);
   if (!c(1) || !c(2)) return null;
